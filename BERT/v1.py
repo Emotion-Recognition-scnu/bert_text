@@ -94,7 +94,7 @@ if __name__ == '__main__':
     #folder_path = r"..\Data"
 
     # 假设您有一个包含文本的DataFrame
-    with open ('Data\\TRANSCRIPT_all.txt', 'r') as file:
+    with open ('..\\Data\\TRANSCRIPT_all.txt', 'r') as file:
         values = file.read()
     df = values.split('\n')
 
@@ -109,5 +109,7 @@ if __name__ == '__main__':
     # last_hidden_states1 = bert_tokenizer(df)
     # print(last_hidden_states1)
 
-    last_hidden_states2 = distilbert_tokenizer(df)
+    last_hidden_states2 = bert_tokenizer(df)
+    with open('..\\Data\\last_hidden_states2.txt', 'w') as file:
+        file.write(str(last_hidden_states2))
     print(last_hidden_states2)
