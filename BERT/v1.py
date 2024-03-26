@@ -59,7 +59,8 @@ def bert_tokenizer(df):  # bert词向量化
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     model = BertModel.from_pretrained('bert-base-uncased')
 
-    texts = df['cleaned_text'].tolist()
+    #texts = df['cleaned_text'].tolist()
+    texts = df
     inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt", max_length=512)
 
     with torch.no_grad():
@@ -90,17 +91,19 @@ def distilbert_tokenizer(df):  # DistilBERT词向量化
 
 if __name__ == '__main__':
     # 文件夹路径，替换成您存储CSV文件的文件夹路径
-    folder_path = r"..\Data"
+    #folder_path = r"..\Data"
 
     # 假设您有一个包含文本的DataFrame
-    df = read_text(folder_path)
+    with open ('Data\\TRANSCRIPT_all.txt', 'r') as file:
+        values = file.read()
+    df = values.split('\n')
 
     # 输出合并后的数据前几行，确认是否正确
     print(df)
 
     # 应用预处理函数
-    df['cleaned_text'] = df['value'].apply(preprocess_text)
-    print(df)
+    #df['cleaned_text'] = df['value'].apply(preprocess_text)
+    #print(df)
 
     # 应用向量化函数
     # last_hidden_states1 = bert_tokenizer(df)
