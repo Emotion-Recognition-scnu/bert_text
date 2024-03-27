@@ -76,9 +76,10 @@ def distilbert_tokenizer(df):  # DistilBERT词向量化
     model = DistilBertModel.from_pretrained('distilbert-base-uncased')
 
     # 将DataFrame中的文本转换为列表
-    texts = df['cleaned_text'].tolist()
+    texts = df
     # 对文本进行分词处理
-    inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt", max_length=512)
+    inputs = [tokenizer(s, padding='max_length', truncation=True, max_length=512, return_tensors='pt') for s in df]
+
 
     # 使用DistilBERT模型获取词向量
     with torch.no_grad():
