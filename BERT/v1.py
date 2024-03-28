@@ -1,116 +1,130 @@
-import pandas as pd
-import re
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-from nltk.tokenize import word_tokenize
-from transformers import BertTokenizer, BertModel
 from transformers import DistilBertTokenizer, DistilBertModel
 import torch
-import os
-
-# 如果是第一次使用NLTK，可能需要下载stopwords和punkt资源
-nltk.download('punkt')
-nltk.download('stopwords')
-
-
-def preprocess_text(text):  # 文本清理函数
-    # 转化为小写
-    text = text.lower()
-
-    # 去除标点符号
-    text = re.sub(r'[^\w\s]', '', text)
-
-    # 去除停用词和语气词
-    stop_words = set(stopwords.words('english'))
-    words = word_tokenize(text)
-    filtered_words = [word for word in words if word not in stop_words]
-
-    # 词形还原
-    stemmer = PorterStemmer()
-    stemmed_words = [stemmer.stem(word) for word in filtered_words]
-
-    # 返回处理后的文本
-    return ' '.join(stemmed_words)
+from torch.utils.data import TensorDataset, DataLoader
+from transformers import DistilBertForSequenceClassification, AdamW
+import pickle
+import torch
+from torch import nn
+from transformers import DistilBertModel
+import torch.nn as nn
+import torch.optim as optim
 
 
-def read_text(folder_path):
-    # 初始化一个空的列表来存储所有文本
-    all_texts = []
+tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+model = DistilBertModel.from_pretrained('distilbert-base-uncased')
+# 读取训练数据
+with open('train.txt', 'r') as file:
+    values = file.read()
+df = values.split('], [')
 
-    # 遍历文件夹内的每个文件
-    for file_name in os.listdir(folder_path):
-        # 检查文件扩展名是否为.csv
-        if file_name.endswith('.csv'):
-            # 构造完整的文件路径
-            file_path = os.path.join(folder_path, file_name)
-            # 读取CSV文件的第一列数据，假设没有标题行
-            data = pd.read_csv(file_path, header=0, sep='\t', usecols=[3])
-            # 将读取的数据追加到列表中
-            all_texts.append(data)
+df[0] = df[0][1:]
+df[-1] = df[-1][:-1]
+for i in df:
+    if len(i) > 512:
+        i = i[:512]
+    if len(i) < 512:
+        i.append('0'*(512-len(i)))
+# print(len(df))
 
-    # 将列表中的所有数据合并成一个DataFrame
-    all_texts_df = pd.concat(all_texts, ignore_index=True)
-
-    return all_texts_df
-
-
-def bert_tokenizer(df):  # bert词向量化
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    model = BertModel.from_pretrained('bert-base-uncased')
-
-    #texts = df['cleaned_text'].tolist()
-    texts = df
-    inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt", max_length=512)
-
-    with torch.no_grad():
-        outputs = model(**inputs)
-        last_hidden_states = outputs.last_hidden_state
-
-    return last_hidden_states
+inputs_train = tokenizer(df, padding='max_length', truncation=True, max_length=512, return_tensors='pt')
+inputs_ids = inputs_train['input_ids'].long()
+print(len(inputs_ids))
+attention_mask = inputs_train['attention_mask'].long()
+with torch.no_grad():
+    outputs = model(**inputs_train)
+    last_hidden_states_train = outputs.last_hidden_state
 
 
-def distilbert_tokenizer(df):  # DistilBERT词向量化
-    # 初始化分词器和DistilBERT模型
-    tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
-    model = DistilBertModel.from_pretrained('distilbert-base-uncased')
+inputs_train = last_hidden_states_train
+inputs_train = inputs_train.clamp_min_(0)
 
+
+
+# 读取测试数据
+with open('test.txt', 'r') as file:
+    values = file.read()
+df2 = values.split('], [')
+df2[0] = df2[0][1:]
+df2[-1] = df2[-1][:-1]
+inputs_test = tokenizer(df2, padding='max_length', truncation=True, max_length=512, return_tensors='pt')
+
+with torch.no_grad():
+    outputs = model(**inputs_test)
+    last_hidden_states_test = outputs.last_hidden_state
+inputs_test = torch.tensor(last_hidden_states_test)
+# print(last_hidden_states.size())
+
+
+# 读取训练标签
+
+<<<<<<< HEAD
+label = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0', '1', '0', '0', '0', '1', '0', '0',
+         '1', '1', '0', '0', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0', '0', '0', '1', '0', '0', '0',
+         '0', '0', '0', '0', '1', '0', '0', '1', '0', '1', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '1',
+         '1', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0',
+         '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
+train_labels = []
+for i in label:
+    train_labels.append([int(i)])
+=======
     # 将DataFrame中的文本转换为列表
     texts = df
     # 对文本进行分词处理
     inputs = [tokenizer(s, padding='max_length', truncation=True, max_length=512, return_tensors='pt') for s in df]
 
+>>>>>>> af37a18b0e71a7655d1459b638476d78801038f0
 
-    # 使用DistilBERT模型获取词向量
-    with torch.no_grad():
-        outputs = model(**inputs)
-        last_hidden_states = outputs.last_hidden_state
+embedding_layer = torch.nn.Embedding(num_embeddings=model.config.vocab_size, embedding_dim=512)
+embedded = embedding_layer(inputs_ids)
+embedded = embedded.clamp_min_(0)
+embedded = embedded.squeeze(-1)
 
-    # 返回最后一层的隐藏状态
-    return last_hidden_states
+# 训练
+# hidden_states = inputs_train
+# hidden_states = inputs_train.to(torch.int64)
+# hidden_states = hidden_states.squeeze(-1)
+hidden_states = embedded.long()
+
+labels = torch.tensor(train_labels)
+
+# 创建TensorDataset和DataLoader
+dataset = TensorDataset(hidden_states,attention_mask,labels)
+dataloader = DataLoader(dataset, batch_size=107)  # 你可以根据需要调整batch_size
+
+# 创建模型和优化器
+
+class MyModel(nn.Module):
+    def __init__(self, num_labels):
+        super(MyModel, self).__init__()
+        self.bert = DistilBertModel.from_pretrained('distilbert-base-uncased')
+        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
+
+    def forward(self, input_ids, attention_mask):
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        last_hidden_state = outputs[0]
+        logits = self.classifier(last_hidden_state)
+        return logits
 
 
-if __name__ == '__main__':
-    # 文件夹路径，替换成您存储CSV文件的文件夹路径
-    #folder_path = r"..\Data"
+# 创建模型和优化器
+model = MyModel(num_labels=2)
+optimizer = optim.Adam(model.parameters(), lr=1e-5)
 
-    # 假设您有一个包含文本的DataFrame
-    with open ('..\\Data\\TRANSCRIPT_all.txt', 'r') as file:
-        values = file.read()
-    df = values.split('\n')
+# 进行训练
+for epoch in range(10):
+    for batch in dataloader:
+        batch_input_ids, batch_attention_mask, batch_labels = batch
+        print(batch_input_ids.shape)
+        print(batch_attention_mask.shape)
+        print(batch_labels.shape)
 
-    # 输出合并后的数据前几行，确认是否正确
-    print(df)
+        logits = model(input_ids=batch_input_ids, attention_mask=batch_attention_mask)
+        print(logits.shape)
 
-    # 应用预处理函数
-    #df['cleaned_text'] = df['value'].apply(preprocess_text)
-    #print(df)
 
-    # 应用向量化函数
-    # last_hidden_states1 = bert_tokenizer(df)
-    # print(last_hidden_states1)
+        loss = nn.CrossEntropyLoss()(logits, batch_labels)
 
-    last_hidden_states2 = bert_tokenizer(df)
-    with open('..\\Data\\last_hidden_states2.txt', 'w') as file:
-        file.write(str(last_hidden_states2))
-    print(last_hidden_states2)
+        # 使用优化器更新模型参数
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
