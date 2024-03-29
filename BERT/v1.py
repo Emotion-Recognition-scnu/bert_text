@@ -57,7 +57,6 @@ inputs_test = torch.tensor(last_hidden_states_test)
 
 # 读取训练标签
 
-<<<<<<< HEAD
 label = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0', '1', '0', '0', '0', '1', '0', '0',
          '1', '1', '0', '0', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0', '0', '0', '1', '0', '0', '0',
          '0', '0', '0', '0', '1', '0', '0', '1', '0', '1', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '1',
@@ -66,13 +65,13 @@ label = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '
 train_labels = []
 for i in label:
     train_labels.append([int(i)])
-=======
+
     # 将DataFrame中的文本转换为列表
     texts = df
     # 对文本进行分词处理
     inputs = [tokenizer(s, padding='max_length', truncation=True, max_length=512, return_tensors='pt') for s in df]
 
->>>>>>> af37a18b0e71a7655d1459b638476d78801038f0
+
 
 embedding_layer = torch.nn.Embedding(num_embeddings=model.config.vocab_size, embedding_dim=512)
 embedded = embedding_layer(inputs_ids)
