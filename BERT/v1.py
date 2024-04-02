@@ -22,8 +22,20 @@ def read_data(file_name):
 
 
 # 读取并处理训练数据
+# df_train = read_data('train.txt')
+
+df_train2 = []
 df_train = read_data('train.txt')
-inputs_train = tokenizer(df_train, padding='max_length', truncation=True, max_length=512, return_tensors='pt')
+for str_l in df_train:
+    str_e = ''
+    for str in str_l:
+        str2 = str.replace('\'', '')
+        str3 = str2.replace('\"', '')
+        str4 = str3.replace(',', '')
+        str_e += str3
+    df_train2.append(str_e)
+
+inputs_train = tokenizer(df_train2, padding='max_length', truncation=True, max_length=512, return_tensors='pt')
 
 inputs_train = inputs_train.to(device)
 with torch.no_grad():
@@ -31,7 +43,19 @@ with torch.no_grad():
 
 # 读取并处理测试数据
 df_test = read_data('test.txt')
-inputs_test = tokenizer(df_test, padding='max_length', truncation=True, max_length=512, return_tensors='pt')
+
+df_test2 = []
+df_train = read_data('test.txt')
+for str_l in df_train:
+    str_e = ''
+    for str in str_l:
+        str2 = str.replace('\'', '')
+        str3 = str2.replace('\"', '')
+        str4 = str3.replace(',', '')
+        str_e += str3
+    df_test2.append(str_e)
+
+inputs_test = tokenizer(df_test2, padding='max_length', truncation=True, max_length=512, return_tensors='pt')
 inputs_test = inputs_test.to(device)
 with torch.no_grad():
     outputs_test = model(**inputs_test)
@@ -49,7 +73,7 @@ labels = torch.tensor(train_labels).cuda()
 
 # 准备DataLoader
 dataset = TensorDataset(inputs_train['input_ids'], inputs_train['attention_mask'], labels)
-dataloader = DataLoader(dataset, batch_size=8)  # 调整batch_size以适应内存
+dataloader = DataLoader(dataset, batch_size=1)  # 调整batch_size以适应内存
 
 
 # 定义模型
@@ -68,10 +92,10 @@ class MyModel(nn.Module):
 # 实例化模型和优化器
 model = MyModel(num_labels=2)
 model = model.to(device)
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(model.parameters(), lr=1e-5)
 
 # 训练模型
-for epoch in range(10):  # 调整epochs根据需要
+for epoch in range(25):  # 调整epochs根据需要
     for batch in dataloader:
         batch_input_ids, batch_attention_mask, batch_labels = batch
         # print(batch_input_ids.shape)
@@ -114,7 +138,7 @@ test_labels = torch.tensor(test_labels).cuda()
 
 # 准备测试数据的DataLoader
 test_dataset = TensorDataset(inputs_test['input_ids'], inputs_test['attention_mask'], test_labels)
-test_dataloader = DataLoader(test_dataset, batch_size=8)
+test_dataloader = DataLoader(test_dataset, batch_size=1)
 
 model.eval()
 
