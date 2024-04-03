@@ -95,7 +95,7 @@ model = model.to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-5)
 
 # 训练模型
-for epoch in range(25):  # 调整epochs根据需要
+for epoch in range(75):  # 调整epochs根据需要
     for batch in dataloader:
         batch_input_ids, batch_attention_mask, batch_labels = batch
         # print(batch_input_ids.shape)
@@ -172,13 +172,13 @@ tp = fp = tn = fn = 0
 for i in range(47):
     if p_l[i] == int(test_labels[i]):
         c += 1
-    if p_l[i] == 1 and int(test_labels[i]) == 1:
-        tp += 1
-    if p_l[i] == 0 and int(test_labels[i]) == 1:
-        fn += 1
-    if p_l[i] == 1 and int(test_labels[i]) == 0:
-        fp += 1
     if p_l[i] == 0 and int(test_labels[i]) == 0:
+        tp += 1
+    if p_l[i] == 1 and int(test_labels[i]) == 0:
+        fn += 1
+    if p_l[i] == 0 and int(test_labels[i]) == 1:
+        fp += 1
+    if p_l[i] == 1 and int(test_labels[i]) == 1:
         tn += 1
 accuracy = c / len(test_labels)
 print(tp, fp, tn, fn)
