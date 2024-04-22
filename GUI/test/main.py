@@ -1,41 +1,47 @@
-from PyQt6 import QtWidgets, uic
-import sys
+from PyQt6 import QtCore, QtGui, QtWidgets, uic
+from PyQt6.QtWidgets import QFileDialog
 
-class Calculator(QtWidgets.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
-        super(Calculator, self).__init__()
-        uic.loadUi('calculator.ui', self)
+        super(MainWindow, self).__init__()
+        uic.loadUi('GUI_v1.ui', self)  # 加载.ui文件
 
-        self.button0 = self.findChild(QtWidgets.QPushButton, 'button0')
-        self.button0.clicked.connect(self.digit_pressed)
-        self.button1 = self.findChild(QtWidgets.QPushButton, 'button1')
-        self.button1.clicked.connect(self.digit_pressed)
-        self.buttonAdd = self.findChild(QtWidgets.QPushButton, 'buttonAdd')
-        self.buttonAdd.clicked.connect(self.operation_pressed)
-        self.buttonEqual = self.findChild(QtWidgets.QPushButton, 'buttonEqual')
-        self.buttonEqual.clicked.connect(self.equal_pressed)
+        # 设置默认启动页为第一页
+        self.pages.setCurrentIndex(0)
 
-        self.display = self.findChild(QtWidgets.QLineEdit, 'display')
+        # 读取QComboBox的输入值
+        self.sign_in_choose_value = self.Sign_in_choose.currentText()
 
-        self.current_operation = None
-        self.current_value = 0
+        # 设置按钮的点击事件
+        self.pushButton_2.clicked.connect(self.load_file_2)
+        self.pushButton_3.clicked.connect(self.load_file_3)
+        self.pushButton.clicked.connect(self.reset_buttons)
+        self.sign_in.clicked.connect(self.go_to_page_2)
 
-    def digit_pressed(self):
-        sender = self.sender()
-        new_value = int(sender.text())
-        self.current_value = self.current_value * 10 + new_value
-        self.display.setText(str(self.current_value))
+    def load_file_2(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, 'Open file', '')
+        if file_path:
+            self.pushButton_2.setStyleSheet("background-color: green")
+            self.pushButton_2.setToolTip(file_path)
 
-    def operation_pressed(self):
-        sender = self.sender()
-        self.current_operation = sender.text()
+    def load_file_3(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, 'Open file', '')
+        if file_path:
+            self.pushButton_3.setStyleSheet("background-color: green")
+            self.pushButton_3.setToolTip(file_path)
 
-    def equal_pressed(self):
-        if self.current_operation == '+':
-            self.current_value += int(self.display.text())
-        self.display.setText(str(self.current_value))
+    def reset_buttons(self):
+        self.pushButton_2.setStyleSheet("")
+        self.pushButton_2.setToolTip("")
+        self.pushButton_3.setStyleSheet("")
+        self.pushButton_3.setToolTip("")
 
-app = QtWidgets.QApplication(sys.argv)
-window = Calculator()
-window.show()
-app.exec()
+    def go_to_page_2(self):
+        self.pages.setCurrentIndex(1)
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
