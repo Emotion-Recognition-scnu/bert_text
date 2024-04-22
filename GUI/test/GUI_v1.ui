@@ -229,7 +229,7 @@
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>PushButton</string>
+                     <string>未选择文件</string>
                     </property>
                    </widget>
                   </item>
@@ -242,7 +242,7 @@
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>PushButton</string>
+                     <string>未选择文件</string>
                     </property>
                    </widget>
                   </item>
