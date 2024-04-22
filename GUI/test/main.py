@@ -23,19 +23,37 @@ class MainWindow(QtWidgets.QMainWindow):
     def load_file_2(self):
         self.file_path1, _ = QFileDialog.getOpenFileName(self, 'Open file', '')
         if self.file_path1:
-            self.pushButton_2.setStyleSheet("background-color: rgb(5,217,88)")
+            self.pushButton_2.setStyleSheet("""
+            QPushButton {
+                background-color: rgb(5,217,88);
+            }
+            QPushButton:hover {
+                background-color: rgb(0,180,0);
+            }
+        """)
             self.pushButton_2.setText(self.file_path1)
 
     def load_file_3(self):
         self.file_path2, _ = QFileDialog.getOpenFileName(self, 'Open file', '')
         if self.file_path2:
-            self.pushButton_3.setStyleSheet("background-color: rgb(5,217,88)")
+            self.pushButton_3.setStyleSheet("""
+            QPushButton {
+                background-color: rgb(5,217,88);
+            }
+            QPushButton:hover {
+                background-color: rgb(0,180,0);
+            }
+        """)
             self.pushButton_3.setText(self.file_path2)
 
     def reset_buttons(self):
-        self.pushButton_2.setStyleSheet("")
+        self.pushButton_2.setStyleSheet("""QPushButton:hover {
+                background-color: rgb(160,160,160);
+            }""")
         self.pushButton_2.setText("未选择文件")
-        self.pushButton_3.setStyleSheet("")
+        self.pushButton_3.setStyleSheet("""QPushButton:hover {
+                background-color: rgb(160,160,160);
+            }""")
         self.pushButton_3.setText("未选择文件")
         self.file_path1 = ""
         self.file_path2 = ""
@@ -75,6 +93,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.order_info.setText("")
 
     def to_page_3(self):
+        if self.status == 1:
+            return
         self.pages.setCurrentIndex(3)
         self.comboBox.setCurrentIndex(0)
         self.comboBox_2.setCurrentIndex(0)

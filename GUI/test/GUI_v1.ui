@@ -39,7 +39,7 @@
             <string notr="true">QPushButton{background-color: rgb(189,189,189); border-radius:20px; color:rgb(0,0,0);}</string>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>3</number>
            </property>
            <widget class="QWidget" name="sign_in_page1">
             <layout class="QGridLayout" name="gridLayout" rowstretch="1,2,1">
@@ -228,6 +228,9 @@
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="styleSheet">
+                     <string notr="true">QPushButton:hover { background-color: rgb(160,160,160);  }        }</string>
+                    </property>
                     <property name="text">
                      <string>未选择文件</string>
                     </property>
@@ -240,6 +243,9 @@
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QPushButton:hover { background-color: rgb(160,160,160);  }        }</string>
                     </property>
                     <property name="text">
                      <string>未选择文件</string>
@@ -350,7 +356,9 @@
                      </font>
                     </property>
                     <property name="styleSheet">
-                     <string notr="true">QPushButton{background-color: rgb(0, 119, 237); border-radius:20px; color:rgb(255,255,255);}</string>
+                     <string notr="true">QPushButton{background-color: rgb(0, 119, 237); border-radius:20px; color:rgb(255,255,255);
+     }
+QPushButton:hover { background-color: rgb(0,102,204);  }  </string>
                     </property>
                     <property name="text">
                      <string>分析</string>
@@ -371,6 +379,9 @@
                       <pointsize>18</pointsize>
                       <bold>true</bold>
                      </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QPushButton:hover { background-color: rgb(160,160,160);  }        }</string>
                     </property>
                     <property name="text">
                      <string>清空输入</string>
@@ -487,6 +498,9 @@
                         <bold>true</bold>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true">QPushButton:hover { background-color: rgb(160,160,160);  }        }</string>
+                      </property>
                       <property name="text">
                        <string>返回</string>
                       </property>
@@ -534,7 +548,9 @@
                        </font>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">QPushButton{background-color: rgb(0, 119, 237); border-radius:20px; color:rgb(255,255,255);}</string>
+                       <string notr="true">QPushButton{background-color: rgb(0, 119, 237); border-radius:20px; color:rgb(255,255,255);
+     }
+QPushButton:hover { background-color: rgb(0,102,204);  }  </string>
                       </property>
                       <property name="text">
                        <string>结果反馈</string>
@@ -654,6 +670,9 @@
                         <pointsize>18</pointsize>
                         <bold>true</bold>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">QPushButton:hover { background-color: rgb(160,160,160);  }        }</string>
                       </property>
                       <property name="text">
                        <string>Return</string>
@@ -1012,7 +1031,9 @@
                        </font>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">QPushButton{background-color: rgb(0, 119, 237); border-radius:20px; color:rgb(255,255,255);}</string>
+                       <string notr="true">QPushButton{background-color: rgb(0, 119, 237); border-radius:20px; color:rgb(255,255,255);
+     }
+QPushButton:hover { background-color: rgb(0,102,204);  }  </string>
                       </property>
                       <property name="text">
                        <string>提交</string>
@@ -1033,6 +1054,9 @@
                         <pointsize>18</pointsize>
                         <bold>true</bold>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">QPushButton:hover { background-color: rgb(160,160,160);  }        }</string>
                       </property>
                       <property name="text">
                        <string>返回</string>
