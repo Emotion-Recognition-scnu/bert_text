@@ -1,80 +1,62 @@
-from transformers import DistilBertTokenizer, DistilBertModel
 import torch
-from torch.utils.data import TensorDataset, DataLoader
-from transformers import DistilBertForSequenceClassification, AdamW
-import pickle
-
-tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
-model = DistilBertModel.from_pretrained('distilbert-base-uncased')
-# 读取训练数据
-with open('train.txt', 'r') as file:
-    values = file.read()
-df = values.split('], [')
-
-df[0] = df[0][1:]
-df[-1] = df[-1][:-1]
-
-inputs_train = tokenizer(df, padding='max_length', truncation=True, max_length=512, return_tensors='pt')
-
-with torch.no_grad():
-    outputs = model(**inputs_train)
-    inputs_train = outputs.last_hidden_state
-#inputs_train = torch.tensor(last_hidden_states_train)
-#print(last_hidden_states.size())
+import torch.nn as nn
+from transformers import DistilBertTokenizer, DistilBertModel
 
 
-# 读取测试数据
-with open('test.txt', 'r') as file:
-    values = file.read()
-df2 = values.split('], [')
-df2[0] = df2[0][1:]
-df2[-1] = df2[-1][:-1]
-inputs_test = tokenizer(df2, padding='max_length', truncation=True, max_length=512, return_tensors='pt')
+# 模型结构定义（按你的原始代码）
+class MyModel(nn.Module):
+    def __init__(self, num_labels):
+        super(MyModel, self).__init__()
+        self.bert = DistilBertModel.from_pretrained('distilbert-base-uncased')
+        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
 
-with torch.no_grad():
-    outputs = model(**inputs_test)
-    last_hidden_states_test = outputs.last_hidden_state
-inputs_test = torch.tensor(last_hidden_states_test)
-#print(last_hidden_states.size())
+    def forward(self, input_ids, attention_mask):
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        logits = self.classifier(outputs.last_hidden_state[:, 0, :])  # 假设分类层是接在最后一层hidden state的第一个token (如CLS)
+        return logits
 
 
-# 读取训练标签
-with open('train_label.txt', 'r') as file:
-    values = file.read()
-train_labels = values.split(', ')
-train_labels[0] = train_labels[0][2:]
-train_labels[-1] = train_labels[-1][:-2]
-train_labels = torch.tensor(train_labels)
+# 数据读取和处理
+def read_data(file_name):
+    with open(file_name, 'r', encoding='utf-8') as file:
+        values = file.read()
+    df = values.split('], [')
+    df[0] = df[0][1:]  # 移除首字符 '['
+    df[-1] = df[-1][:-1]  # 移除末字符 ']'
+    return df
 
 
-# 训练
-hidden_states = inputs_train
-hidden_states = hidden_states.long()
-hidden_states = hidden_states.squeeze(-1)
+def preprocess_data(data_list, tokenizer):
+    processed_texts = []
+    for item in data_list:
+        item_clean = item.replace("'", "").replace("\"", "").replace(",", "")
+        processed_texts.append(item_clean)
+    inputs = tokenizer(processed_texts, padding=True, truncation=True, max_length=512, return_tensors='pt')
+    return inputs
 
 
-labels = torch.tensor(list(map(int, train_labels))).long()
-labels = labels.squeeze(-1)
+# 主执行函数
+def predict(model_path, file_path):
 
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-dataset = TensorDataset(inputs_train, labels)
-dataloader = DataLoader(dataset, batch_size=32)
+    # 初始化tokenizer和模型
+    tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+    model = MyModel(num_labels=2)
+    model.load_state_dict(torch.load(model_path))
+    model.to(device)
+    model.eval()
 
-# 创建模型和优化器
-model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased')
-optimizer = AdamW(model.parameters(), lr=1e-5)
+    # 读取并处理数据
+    train_data = read_data(file_path)
+    inputs_train = preprocess_data(train_data, tokenizer)
+    input_ids = inputs_train['input_ids'].to(device)
+    attention_mask = inputs_train['attention_mask'].to(device)
 
-# 进行训练
-for epoch in range(10):
-    for batch in dataloader: #
-        batch_hidden_states, batch_labels = batch
+    # 使用DistilBert模型进行预测
+    with torch.no_grad():
+        predictions = model(input_ids=input_ids, attention_mask=attention_mask)
+        predicted_labels = torch.argmax(predictions, dim=1)
+        print(f'Predicted labels: {predicted_labels.tolist()}')
 
-        # 将数据输入到模型中，获取输出结果
-        outputs = model(batch_hidden_states)
-        loss = outputs.loss
-
-        # 使用优化器更新模型参数
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
+    return predicted_labels.tolist()
