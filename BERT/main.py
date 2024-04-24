@@ -21,8 +21,8 @@ def read_data(file_name):
     with open(file_name, 'r', encoding='utf-8') as file:
         values = file.read()
     df = values.split('], [')
-    df[0] = df[0][1:]  # 移除首字符 '['
-    df[-1] = df[-1][:-1]  # 移除末字符 ']'
+    df[0] = df[0][1:]
+    df[-1] = df[-1][:-1]
     return df
 
 
@@ -37,13 +37,17 @@ def preprocess_data(data_list, tokenizer):
 
 # 主执行函数
 def predict(model_path, file_path):
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # 初始化tokenizer和模型
     tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
     model = MyModel(num_labels=2)
-    model.load_state_dict(torch.load(model_path))
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)  # 确保使用与训练时相同的参数
+
+    # 在保存的模型字典中加载模型状态和优化器状态
+    checkpoint = torch.load(model_path,map_location=torch.device('cpu'))
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     model.to(device)
     model.eval()
 
